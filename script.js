@@ -1,4 +1,6 @@
 let tilesAmount = 36;
+let balance = 1000;
+document.getElementById('balance').innerHTML = balance;
 class tile {
     constructor(index, color) {
         this.index = index;
@@ -41,7 +43,7 @@ for (let i = 0; i < tiles.length; i++) {
     document.getElementById(i).style.transform = "rotate(" + (-Math.PI / 2 + angle) + "rad)"
     angle += Math.PI / (tilesAmount / 2);
     const number = document.createElement("h2");
-    number.innerHTML = i;
+    number.innerHTML = (i + 1);
     number.id = "number" + i;
     document.getElementById(i).appendChild(number)
     console.log(document.getElementById("number" + i))
@@ -51,21 +53,26 @@ for (let i = 0; i < tiles.length; i++) {
 function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
 }
-async function roll(tiles, tilesAmount, betNumber, betAmount) {
-    correctTile = Math.floor(Math.random() * tilesAmount)
-    let startingSpeed = 10;
-    for (; startingSpeed <= 10000; startingSpeed += 100) {
-        console.log(1)
+
+async function rollAnim(correctTile) {
+    let startingSpeed = 1;
+    var rotations = 0
+    var isOver = false;
+    for (let i = 0; i < 3; i++) {
         for (let i = 0; i < tiles.length; i++) {
-            startingSpeed += 10;
-            console.log(1)
+            startingSpeed += 1;
             select(i);
             await sleep(startingSpeed);
+            if (rotations >= 2 && i == correctTile) {
+                isOver = true;
+                console.log(correctTile)
+                return correctTile;
+            }
             deSelect(i)
         }
+        rotations += 1
     }
-
-};
+}
 
 function select(id) {
     document.getElementById(id).style.background = "white";
@@ -79,4 +86,37 @@ function deSelect(id) {
     }
 }
 
-roll(tiles, 36, 1, 1)
+async function bet(balance, betValue) {
+
+
+    balance -= betValue;
+    document.getElementById('balance').innerHTML = balance;
+
+
+
+    const correctTile = Math.floor(Math.random() * tilesAmount);
+    let radios = document.getElementsByName('color');
+    let betColor = '';
+    for (let radio of radios) {
+        if (radio.checked) {
+            betColor = radio.value;
+            break;
+        }
+    }
+    await rollAnim(correctTile);
+    if (tiles[correctTile].color == betColor) {
+        balance += 2 * betValue;
+        document.getElementById('balance').innerHTML = balance;
+    }
+    console.log(balance)
+    return balance;
+}
+
+async function buttonPress() {
+    let betValue = document.getElementById('betAmount').value;
+    if (balance < betValue) {
+        window.alert("Balance to low");
+        return
+    }
+    balance = await bet(balance, betValue)
+}
