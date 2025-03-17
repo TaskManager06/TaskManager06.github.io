@@ -20,7 +20,7 @@ for (let i = 0; i < tilesAmount; i++) {
 }
 const center = [window.innerWidth / 2, window.innerHeight / 2];
 var angle = 0;
-const radius = 300;
+const radius = 200;
 console.log(center);
 for (let i = 0; i < tiles.length; i++) {
     var newTile = document.createElement("div");
@@ -37,8 +37,8 @@ for (let i = 0; i < tiles.length; i++) {
 
     document.getElementById(i).style.position = "absolute";
 
-    document.getElementById(i).style.top = center[0] + Math.sin(angle) * radius + "px";
-    document.getElementById(i).style.left = center[0] + Math.cos(angle) * radius + "px";
+    document.getElementById(i).style.top = -200 + center[0] + Math.sin(angle) * radius + "px";
+    document.getElementById(i).style.left = 200 + center[0] + Math.cos(angle) * radius + "px";
     console.log((Math.PI / 4 - angle));
     document.getElementById(i).style.transform = "rotate(" + (-Math.PI / 2 + angle) + "rad)"
     angle += Math.PI / (tilesAmount / 2);
@@ -86,7 +86,7 @@ function deSelect(id) {
     }
 }
 
-async function bet(balance, betValue) {
+async function bet(balance, betValue,showAnim) {
 
 
     balance -= betValue;
@@ -103,7 +103,9 @@ async function bet(balance, betValue) {
             break;
         }
     }
-    await rollAnim(correctTile);
+    if(showAnim){
+        await rollAnim(correctTile);
+    }
     if (tiles[correctTile].color == betColor) {
         balance += 2 * betValue;
         document.getElementById('balance').innerHTML = balance;
@@ -118,5 +120,15 @@ async function buttonPress() {
         window.alert("Balance to low");
         return
     }
-    balance = await bet(balance, betValue)
+    balance = await bet(balance, betValue,1)
+}
+
+
+async function sim(){
+    balance = 10000;
+    var right = "10%";
+    var top = "50%";
+    for(let i = 0;i < 1000;i++){
+        balance = await bet(balance, 100,0);
+    }
 }
